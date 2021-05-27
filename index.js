@@ -24,41 +24,69 @@
 
     Here is a counter-example that fixes the above function
     const calculateTip = (cost, tipPercent = 0.15) => cost * tipPercent;
-
 */
 
+
+// Lib Code
 /**
  * This is a factory function that creates the store (An abstract data type?).
  * @returns 
  */
-const createStore = () => {
+const createStore = (reducer) => {
   /*
-    Conceptually, the store allows you to:
-    1. Store the state tree.
-    2. Get the state for use.
-    3. Listen to the changes of the state.
-    4. Update the state.
+  Conceptually, the store allows you to:
+  1. Store the state tree.
+  2. Get the state for use.
+  3. Listen to the changes of the state.
+  4. Update the state.
   */
-
-  let state;
-  const listeners = [];
-
-  const getState = () => state;
-  const subscribe = newListener => {
-    listeners.push(newListener);
-    // To Unsubscribe,
-    return () => {
-      listeners.filter((listener) => listener !== newListener);
+ 
+ let state;
+ const listeners = [];
+ 
+ const getState = () => state;
+ 
+ const subscribe = newListener => {
+   listeners.push(newListener);
+   // To Unsubscribe,
+   return () => {
+     listeners.filter((listener) => listener !== newListener);
     }
   }
-
+  
+  const dispatch = (action) => {
+    state = reducer(state, action);
+    listeners.forEach((listener) => listener());
+  }
+  
   return {
     getState,
-    subscribe
+    subscribe,
+    dispatch
   }
 }
 
-const store = createStore();
+
+// App Code
+
+/**
+ * This is a reducer, it allows us act on the
+ * state and modify it while following the
+ * rules of redux.
+ * 
+ * By convention this is a pure function.
+ * @param {*} state 
+ * @param {*} action 
+ * @returns 
+ */
+const todos = (state = [], action) => {
+  if (action.type === 'ADD_TODO') {
+    return state.concat([action.todo]);
+  }
+  return state;
+}
+
+const store = createStore(todos);
 
 // A proposed method to allow users to
 // listen to the changes of the state.
