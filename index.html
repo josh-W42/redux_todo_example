@@ -29,45 +29,6 @@
         return Math.random().toString(36).substring(2) + (new Date()).getTime().toString(36);
       }
 
-      /**
-      * This is a factory function that creates the store (An abstract data type?).
-      * 
-      * @returns Object of available actions.
-      */
-      const createStore = (reducer) => {
-        /*
-        Conceptually, the store allows you to:
-        1. Store the state tree. ie. state variable
-        2. Get the state for use. ie. getState
-        3. Listen to the changes of the state. ie. subscribe
-        4. Update the state. ie. dispatch
-        */
-      
-      let state;
-      const listeners = [];
-      
-      const getState = () => state;
-      
-      const subscribe = newListener => {
-        listeners.push(newListener);
-        // To Unsubscribe,
-        return () => {
-          listeners.filter((listener) => listener !== newListener);
-          }
-        }
-        
-        const dispatch = (action) => {
-          state = reducer(state, action);
-          listeners.forEach((listener) => listener());
-        }
-        
-        return {
-          getState,
-          subscribe,
-          dispatch
-        }
-      }
-
 
       // App Code
 
@@ -161,21 +122,24 @@
         }
       }
 
-      /**
-      * The root reducer function that routes
-      * actions to their respective reducers.
-      * @param {Object} state 
-      * @param {Object} action 
-      * @returns Object of all reducers
-      */
-      const app = (state = {}, action) => {
-        return  {
-          todos: todos(state.todos, action),
-          goals: goals(state.goals, action),
-        }
-      }
+      // /**
+      // * The root reducer function that routes
+      // * actions to their respective reducers.
+      // * @param {Object} state 
+      // * @param {Object} action 
+      // * @returns Object of all reducers
+      // */
+      // const app = (state = {}, action) => {
+      //   return  {
+      //     todos: todos(state.todos, action),
+      //     goals: goals(state.goals, action),
+      //   }
+      // }
 
-      const store = createStore(app);
+      const store = Redux.createStore(Redux.combineReducers({
+        todos,
+        goals,
+      }));
 
       store.subscribe(() => {
         const { goals, todos } = store.getState();
