@@ -30,6 +30,7 @@
 
 
 // Library Code
+
 /**
  * This is a factory function that creates the store (An abstract data type?).
  * 
@@ -72,6 +73,48 @@ const createStore = (reducer) => {
 
 // App Code
 
+const ADD_TODO = 'ADD_TODO';
+const REMOVE_TODO = 'REMOVE_TODO';
+const TOGGLE_TODO = 'TOGGLE_TODO';
+const ADD_GOAL = 'ADD_GOAL';
+const REMOVE_GOAL = 'REMOVE_GOAL';
+
+// action creators
+const addTodoAction = todo => {
+  return {
+    type: ADD_TODO,
+    todo,
+  }
+}
+
+const removeTodoAction = id => {
+  return {
+    type: REMOVE_TODO,
+    id,
+  }
+}
+
+const toggleTodoAction = id => {
+  return {
+    type: TOGGLE_TODO,
+    id,
+  }
+}
+
+const addGoalAction = goal => {
+  return {
+    type: ADD_GOAL,
+    goal,
+  }
+}
+
+const removeGoalAction = id => {
+  return {
+    type: REMOVE_GOAL,
+    id,
+  }
+}
+
 /**
  * This is a reducer, it allows us act on the
  * state and modify it while following the
@@ -84,13 +127,13 @@ const createStore = (reducer) => {
  */
 const todos = (state = [], action) => {
   switch (action.type) {
-    case 'ADD_TODO':
+    case ADD_TODO:
       return state.concat([action.todo]);
 
-    case 'REMOVE_TODO':
+    case REMOVE_TODO:
       return state.filter((todo) => todo.id !== action.id);
 
-    case 'TOGGLE_TODO':
+    case TOGGLE_TODO:
       return state.map((todo) => todo.id !== action.id ? todo : 
         Object.assign({}, todo, { complete: !todo.complete })
       );
@@ -109,10 +152,10 @@ const todos = (state = [], action) => {
  */
 const goals = (state = [], action) => {
   switch (action.type) {
-    case 'ADD_GOAL':
+    case ADD_GOAL:
       return state.concat([action.goal]);
 
-    case 'REMOVE_GOAL':
+    case REMOVE_GOAL:
       return state.filter((goal) => goal.id !== action.id);
   
     default:
@@ -120,6 +163,13 @@ const goals = (state = [], action) => {
   }
 }
 
+/**
+ * The root reducer function that routes
+ * actions to their respective reducers.
+ * @param {Object} state 
+ * @param {Object} action 
+ * @returns Object of all reducers
+ */
 const app = (state = {}, action) => {
   return  {
     todos: todos(state.todos, action),
@@ -136,23 +186,35 @@ const unsubscribe = store.subscribe(() => {
   console.log('The store has changed');
 });
 
-// Examples on how to use dispatch to
-// update the state tree.
-store.dispatch({
-  type: 'ADD_TODO',
-  todo: {
-    id: 0,
-    name: 'Learn Redux',
-    complete: false
-  }
-});
+store.dispatch(addTodoAction({
+  id: 0,
+  name: 'Learn Redux',
+  complete: false,
+}));
 
+store.dispatch(addTodoAction({
+  id: 1,
+  name: 'Walk the dog',
+  complete: true,
+}));
 
-store.dispatch({
-  type: 'ADD_TODO',
-  todo: {
-    id: 1,
-    name: 'Learn More',
-    complete: true
-  }
-});
+store.dispatch(removeTodoAction(1));
+
+store.dispatch(toggleTodoAction(0));
+
+store.dispatch(addGoalAction({
+  id: 0,
+  name: 'Learn React Native',
+}));
+
+store.dispatch(addGoalAction({
+  id: 1,
+  name: 'Train for a marathon',
+}));
+
+store.dispatch(addGoalAction({
+  id: 2,
+  name: 'Whoops',
+}));
+
+store.dispatch(removeGoalAction(2));
