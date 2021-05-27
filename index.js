@@ -180,7 +180,7 @@ const app = (state = {}, action) => {
 const store = createStore(app);
 
 store.subscribe(() => {
-  console.log(`The state is now: ${store.getState()}`);
+  console.log('The state is now:', store.getState());
 });
 const unsubscribe = store.subscribe(() => {
   console.log('The store has changed');
