@@ -4,6 +4,8 @@
 
   Redux itself is a predictable state container for js apps.
 
+  The end goal of this example app is a "todo list" type app.
+
   The Rules of Redux:
   1. Only an event can change the state of the store.
   2. The function that returns the new state needs to be a pure function.
@@ -27,7 +29,7 @@
 */
 
 
-// Lib Code
+// Library Code
 /**
  * This is a factory function that creates the store (An abstract data type?).
  * @returns 
@@ -35,10 +37,10 @@
 const createStore = (reducer) => {
   /*
   Conceptually, the store allows you to:
-  1. Store the state tree.
-  2. Get the state for use.
-  3. Listen to the changes of the state.
-  4. Update the state.
+  1. Store the state tree. ie. state variable
+  2. Get the state for use. ie. getState
+  3. Listen to the changes of the state. ie. subscribe
+  4. Update the state. ie. dispatch
   */
  
  let state;
@@ -88,11 +90,30 @@ const todos = (state = [], action) => {
 
 const store = createStore(todos);
 
-// A proposed method to allow users to
-// listen to the changes of the state.
 store.subscribe(() => {
   console.log(`The state is now: ${store.getState()}`);
 });
 const unsubscribe = store.subscribe(() => {
   console.log('The store has changed');
+});
+
+// Examples on how to use dispatch to
+// update the state tree.
+store.dispatch({
+  type: 'ADD_TODO',
+  todo: {
+    id: 0,
+    name: 'Learn Redux',
+    complete: false
+  }
+});
+
+
+store.dispatch({
+  type: 'ADD_TODO',
+  todo: {
+    id: 1,
+    name: 'Learn More',
+    complete: true
+  }
 });
