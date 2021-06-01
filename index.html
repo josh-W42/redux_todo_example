@@ -169,15 +169,25 @@
         return next(action);
       }
 
+      const logger = store => next => action => {
+        // this groups all log statements together
+        console.group(action.type);
+          console.log('The action:', action);
+          const result = next(action);
+          console.log('The new state:', store.getState());
+        console.groupEnd();
+        return result;
+      }
+
       const store = Redux.createStore(Redux.combineReducers({
         todos,
         goals,
-      }), Redux.applyMiddleware(checker));
+      }), Redux.applyMiddleware(checker, logger));
 
       store.subscribe(() => {
         const { goals, todos } = store.getState();
 
-        console.log(todos, goals);
+        // console.log(todos, goals);
 
         document.querySelector('#goals').innerHTML = '';
         document.querySelector('#todos').innerHTML = '';
@@ -186,7 +196,7 @@
         todos.forEach(addTodoToDOM);
       });
       const unsubscribe = store.subscribe(() => {
-        console.log('The store has changed');
+        // console.log('The store has changed');
       });
 
       const addTodo = () => {
