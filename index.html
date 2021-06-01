@@ -144,28 +144,35 @@
         before it has occurred and generate an alert
         when input is invalid.
       */
-      const checkAndDispatch = (store, action) => {
+      // const checkAndDispatch = (store, action) => {
+      // }
+
+      /*
+        This is a middleware function, improved upon from
+        check and dispatch.
+      */
+      const checker = store => next => action => {
         if (
           action.type === ADD_TODO &&
           action.todo.name.toLowerCase().includes('bitcoin')
         ) {
           return alert('Nope. No Bitcoin');
         }
-
+   
         if (
           action.type === ADD_GOAL &&
           action.goal.name.toLowerCase().includes('bitcoin')
         ) {
           return alert('Nope. No Bitcoin');
         }
-
-        return store.dispatch(action);
+   
+        return next(action);
       }
 
       const store = Redux.createStore(Redux.combineReducers({
         todos,
         goals,
-      }));
+      }), Redux.applyMiddleware(checker));
 
       store.subscribe(() => {
         const { goals, todos } = store.getState();
@@ -187,12 +194,11 @@
         const name = input.value;
         input.value = '';
 
-        checkAndDispatch(store, addTodoAction({
+        store.dispatch(addTodoAction({
           name,
           complete: false,
           id: generateId(),
         }));
-
       }
 
       const addGoal = () => {
@@ -200,11 +206,10 @@
         const name = input.value;
         input.value = '';
 
-        checkAndDispatch(store, addGoalAction({
+        store.dispatch(addGoalAction({
           name,
           id: generateId(),
         }));
-
       }
 
       document.querySelector('#todoBtn')
@@ -225,7 +230,7 @@
         const text = document.createTextNode(todo.name);
 
         const removeBtn = createRemoveButton(() => {
-          checkAndDispatch(store, removeTodoAction(todo.id));
+          store.dispatch(removeTodoAction(todo.id)) 
         });
 
         node.appendChild(text);
@@ -233,7 +238,7 @@
 
         node.style.textDecoration = todo.complete ? 'line-through' : 'none';
         node.addEventListener('click', () => {
-          checkAndDispatch(store, toggleTodoAction(todo.id));
+          store.dispatch(toggleTodoAction(todo.id));
         });
 
         document.querySelector('#todos')
@@ -244,7 +249,7 @@
         const node = document.createElement('li');
         const text = document.createTextNode(goal.name);
         const removeBtn = createRemoveButton(() => {
-          checkAndDispatch(store, removeGoalAction(goal.id));
+          store.dispatch(removeGoalAction(goal.id));
         });
 
         node.appendChild(text);
