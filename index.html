@@ -9,6 +9,8 @@
     <script src="https://unpkg.com/react@16.3.0-alpha.1/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@16.3.0-alpha.1/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    <!-- Database Stuff -->
+    <script src="https://tylermcginnis.com/goals-todos-api/index.js"></script>
   </head>
   <body>
 
@@ -29,6 +31,7 @@
       const TOGGLE_TODO = 'TOGGLE_TODO';
       const ADD_GOAL = 'ADD_GOAL';
       const REMOVE_GOAL = 'REMOVE_GOAL';
+      const RECEIVE_DATA = 'RECEIVE_DATA';
 
       // action creators
       const addTodoAction = todo => {
@@ -66,6 +69,23 @@
         }
       }
 
+      const receiveDataAction = (todos, goals) => {
+        return {
+          type: RECEIVE_DATA, 
+          todos,
+          goals,
+        }
+      }
+
+      const loading = (state = true, action) => {
+        switch(action.type) {
+          case RECEIVE_DATA:
+            return false;
+          default:
+            return state;
+        }
+      }
+
       /**
       * This is a reducer, it allows us act on the
       * state and modify it while following the
@@ -88,6 +108,8 @@
             return state.map((todo) => todo.id !== action.id ? todo : 
               Object.assign({}, todo, { complete: !todo.complete })
             );
+          case RECEIVE_DATA:
+            return action.todos;
 
           default:
             return state;
@@ -108,6 +130,9 @@
 
           case REMOVE_GOAL:
             return state.filter((goal) => goal.id !== action.id);
+
+          case RECEIVE_DATA:
+            return action.goals;
         
           default:
             return state;
@@ -174,6 +199,7 @@
       const store = Redux.createStore(Redux.combineReducers({
         todos,
         goals,
+        loading,
       }), Redux.applyMiddleware(checker, logger));
 
     </script>
@@ -279,12 +305,24 @@
         componentDidMount () {
           const { store } = this.props;
           store.subscribe(() => this.forceUpdate());
+
+          Promise.all([API.fetchTodos(), API.fetchGoals()])
+            .then(([todos, goals]) => {
+              store.dispatch(receiveDataAction(todos, goals));
+            }).catch((error) => {
+              console.error(error);
+            });
         }
 
 
         render() {
           const { store } = this.props;
-          const { todos, goals } = store.getState(); 
+          const { todos, goals, loading } = store.getState();
+
+          if (loading) {
+            return <h1>Loading...</h1>
+          }
+
           return  (
             <div>
               <Todos todos={todos} store={this.props.store} />
