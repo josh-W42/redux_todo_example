@@ -11,6 +11,8 @@
     <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
     <!-- Database Stuff -->
     <script src="https://tylermcginnis.com/goals-todos-api/index.js"></script>
+    <!-- Thunk -->
+    <script src="https://unpkg.com/redux-thunk@2.2.0/dist/redux-thunk.min.js"></script>
   </head>
   <body>
 
@@ -74,6 +76,19 @@
           type: RECEIVE_DATA, 
           todos,
           goals,
+        }
+      }
+
+      const handleDeleteTodo = todo => {
+        return dispatch => {
+          // Implementing optimistic updates
+          dispatch(removeTodoAction(todo.id));
+  
+          return API.deleteTodo(todo.id)
+            .catch((error) => {
+              dispatch(addTodoAction(todo));
+              alert("Could Not Delete Todo");
+            });
         }
       }
 
@@ -196,11 +211,21 @@
         return result;
       }
 
+      // this is a custom middleware that displays how we would use thunk
+      // we'll use the actual library bellow
+      // const thunk = store => next => action => {
+      //   if (typeof action === 'function') {
+      //     return action(store.dispatch);
+      //   }
+
+      //   return next(action);
+      // }
+
       const store = Redux.createStore(Redux.combineReducers({
         todos,
         goals,
         loading,
-      }), Redux.applyMiddleware(checker, logger));
+      }), Redux.applyMiddleware(ReduxThunk.default, checker, logger));
 
     </script>
     <script type="text/babel">
@@ -239,14 +264,7 @@
         }
 
         removeItem = todo => {
-          // Implementing optimistic updates
-          this.props.store.dispatch(removeTodoAction(todo.id));
-
-          return API.deleteTodo(todo.id)
-            .catch((error) => {
-              this.props.store.dispatch(addTodoAction(todo));
-              alert("Could Not Delete Todo");
-            });
+          this.props.store.dispatch(handleDeleteTodo(todo));
         }
 
         toggleItem = id => {
@@ -291,7 +309,6 @@
             }).catch(() => {
               alert("Could Not Add The Goal")
             })
-
 
           const name = this.input.value;
           this.input.value = '';
