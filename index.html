@@ -436,6 +436,13 @@
         goals: state.goals,
       }))(Goals);
 
+      /*
+        With React-Redux, it's possible to create
+        connected components with plain presentational
+        components with just simply using the library's
+        connect function.
+      */
+
       ReactDOM.render(
         <ReactRedux.Provider store={store}>
           <ConnectedApp />
